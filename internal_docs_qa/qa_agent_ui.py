@@ -14,7 +14,7 @@ from langchain.chains import ConversationalRetrievalChain
 from transformers import pipeline
 import gradio as gr
 
-# Load environment variables
+# Load env
 load_dotenv()
 
 DOCS_FOLDER = "internal_docs"
@@ -60,7 +60,6 @@ def get_vectorstore(chunks):
         vectorstore.save_local(VECTOR_STORE_FOLDER)
         return vectorstore
 
-
 # Initialize chain
 print("Loading documents...")
 documents = load_docs(DOCS_FOLDER)
@@ -75,8 +74,8 @@ vectorstore = get_vectorstore(chunks)
 print("Loading HuggingFace LLM...")
 hf_pipeline = pipeline(
     "text-generation",
-    model="distilgpt2",
-    max_new_tokens=256,
+    model="sshleifer/tiny-gpt2",  # light-weight model for low-memory deployment
+    max_new_tokens=128,
     temperature=0.7,
     do_sample=True
 )
@@ -101,55 +100,30 @@ def clear_chat():
     chat_history = []
     return [], ""
 
-
-# 🌈 Decent, formal & attractive UI with Gradio
+# 🌈 Gradio app
 custom_theme = gr.themes.Soft(
     primary_hue="blue",
-    secondary_hue="teal",
-    neutral_hue="slate",
+    secondary_hue="slate",
+    neutral_hue="gray",
 )
 
 with gr.Blocks(
     theme=custom_theme,
     css="""
     button {
-        background: linear-gradient(90deg, #4a90e2, #50e3c2) !important;
+        background: linear-gradient(90deg, #4e54c8, #8f94fb) !important;
         color: white !important;
-        border-radius: 6px !important;
-        font-weight: bold;
+        border-radius: 8px !important;
     }
     .gradio-container {
-        background: linear-gradient(135deg, #f7f9fc, #e6eff7);
-    }
-    .message.user {
-        background-color: #d9e8fb !important;
-        border-radius: 8px;
-        padding: 6px;
-        color: #003366;
-    }
-    .message.assistant {
-        background-color: #d3f4ef !important;
-        border-radius: 8px;
-        padding: 6px;
-        color: #003333;
-    }
-    .clear-btn {
-        background-color: #e0f0ff !important;
-        color: #003366 !important;
-        font-weight: bold;
-    }
-    .question-box textarea {
-        background-color: #f9fbfd;
-        border-radius: 6px;
-        border: 1px solid #cce0f5;
-        padding: 8px;
+        background: #f5f5f5;
     }
     """
 ) as demo:
     gr.HTML("""
-    <div style="text-align:center; background:linear-gradient(to right,#4a90e2,#50e3c2); color:white; padding:1rem; border-radius:8px; margin-bottom:10px; font-size:20px;">
+    <div style="text-align:center; background:#4e54c8; color:white; padding:1rem; border-radius:10px; margin-bottom:10px; font-size:20px;">
         📄 <strong>Internal Docs Q&A Bot 🤖</strong>
-        <div style="font-size:14px;">Ask your questions below and get clear, instant answers!</div>
+        <div style="font-size:14px;">Ask your questions below and get instant answers!</div>
     </div>
     """)
 
@@ -163,21 +137,20 @@ with gr.Blocks(
             )
         with gr.Column(scale=1):
             gr.HTML("""
-            <div style="background: #f0f4f8; padding:10px; border-radius:8px; font-size:14px;">
+            <div style="background: #e0f7fa; padding:10px; border-radius:8px; font-size:14px;">
             🌟 <strong>Instructions:</strong><br>
-            - Type your question in the box below.<br>
+            - Type your question below.<br>
             - Press <strong>Enter</strong> or <strong>Submit</strong>.<br>
-            - Click 🧹 to clear the chat and start fresh.<br>
+            - Click 🧹 to clear the chat.<br>
             </div>
             """)
-            clear_btn = gr.Button("🧹 Clear Chat", elem_classes="clear-btn")
+            clear_btn = gr.Button("🧹 Clear Chat")
 
     with gr.Row():
         msg = gr.Textbox(
             label="💌 Your Question",
             placeholder="E.g., What is the company leave policy?",
             lines=2,
-            elem_classes="question-box"
         )
 
     msg.submit(chat, [msg, chatbot], [chatbot, msg])
@@ -186,9 +159,11 @@ with gr.Blocks(
     gr.Markdown("---")
     gr.HTML("""
     <div style="text-align:center; font-size:12px; color:gray;">
-    ⚡ Made with ❤️ using <a href='https://www.langchain.com/' target='_blank'>LangChain</a> & 
-    <a href='https://gradio.app/' target='_blank'>Gradio</a> | 🌟 Customized by <strong>You</strong>
+    ⚡ Powered by <a href='https://www.langchain.com/' target='_blank'>LangChain</a> & 
+    <a href='https://gradio.app/' target='_blank'>Gradio</a>
     </div>
     """)
 
-demo.launch()
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 7860))
+    demo.launch(server_name="0.0.0.0", server_port=port)
