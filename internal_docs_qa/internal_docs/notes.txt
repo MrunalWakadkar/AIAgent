@@ -1,0 +1,6 @@
+General Notes:
+
+- The next all-hands meeting is scheduled for Monday at 3 PM.
+- Submit your weekly reports by Friday EOD.
+- Remember to update your task status on Jira daily.
+- For technical support, contact support@[company].com.
