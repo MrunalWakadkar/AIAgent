@@ -7,3 +7,5 @@ unstructured
 transformers>=4.40
 torch
 gradio>=4.0
+gunicorn>=21
+uvicorn>=0.29
