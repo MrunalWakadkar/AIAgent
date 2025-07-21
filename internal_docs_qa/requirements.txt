@@ -9,3 +9,4 @@ torch
 gradio>=4.0
 gunicorn>=21
 uvicorn>=0.29
+langchain-huggingface>=0.0.5
